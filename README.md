@@ -30,5 +30,5 @@ Requires macOS 13+ on Apple Silicon and the Xcode command line tools (`xcode-sel
 ./build.sh
 ```
 
-This builds `Tint.app` and installs it to `~/Applications`. To start it automatically, add it under
+This builds `Tint.app` and installs it to `/Applications`. To start it automatically, add it under
 System Settings → General → Login Items.

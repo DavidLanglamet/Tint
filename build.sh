@@ -1,5 +1,5 @@
 #!/bin/bash
-# Builds Tint.app and installs it into ~/Applications.
+# Builds Tint.app and installs it into /Applications.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -33,7 +33,7 @@ PLIST
 
 codesign --force --sign - "$APP"
 
-mkdir -p ~/Applications
-rm -rf ~/Applications/Tint.app
-cp -R "$APP" ~/Applications/
-echo "Installed ~/Applications/Tint.app"
+# Move rather than copy, so Spotlight doesn't list a second Tint.app in build/.
+rm -rf /Applications/Tint.app
+mv "$APP" /Applications/
+echo "Installed /Applications/Tint.app"
