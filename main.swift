@@ -190,7 +190,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             let item = NSMenuItem(title: preset.name, action: #selector(pickPreset(_:)), keyEquivalent: "")
             item.target = self
             item.tag = index
-            item.image = swatch(preset.color)
+            item.attributedTitle = swatchTitle(preset.name, preset.color)
             if Self.sameColor(preset.color, current) {
                 item.state = .on
                 matchedPreset = true
@@ -201,7 +201,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         custom.target = self
         if !matchedPreset {
             custom.state = .on
-            custom.image = swatch(current)
+            custom.attributedTitle = swatchTitle("Custom…", current)
         }
         menu.addItem(custom)
         menu.addItem(.separator())
@@ -250,25 +250,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func sliderItem(
         title: String, value: Double, range: ClosedRange<Double>, text: String, action: Selector
     ) -> (NSMenuItem, NSTextField, NSSlider) {
-        let view = NSView(frame: NSRect(x: 0, y: 0, width: 240, height: 50))
+        // Insets line the labels up with the text of ordinary menu items.
+        let view = NSView(frame: NSRect(x: 0, y: 0, width: 260, height: 50))
 
         let titleLabel = NSTextField(labelWithString: title)
         titleLabel.font = .menuFont(ofSize: 0)
-        titleLabel.frame = NSRect(x: 20, y: 28, width: 140, height: 17)
+        titleLabel.frame = NSRect(x: 28, y: 28, width: 140, height: 17)
         view.addSubview(titleLabel)
 
         let valueLabel = NSTextField(labelWithString: text)
         valueLabel.font = .monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
         valueLabel.textColor = .secondaryLabelColor
         valueLabel.alignment = .right
-        valueLabel.frame = NSRect(x: 150, y: 28, width: 72, height: 17)
+        valueLabel.frame = NSRect(x: 186, y: 28, width: 72, height: 17)
         view.addSubview(valueLabel)
 
         let slider = NSSlider(
             value: value, minValue: range.lowerBound, maxValue: range.upperBound,
             target: self, action: action)
         slider.isContinuous = true
-        slider.frame = NSRect(x: 18, y: 4, width: 206, height: 22)
+        slider.frame = NSRect(x: 28, y: 4, width: 228, height: 22)
         view.addSubview(slider)
 
         let item = NSMenuItem()
@@ -309,12 +310,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         "\(Int((opacity * 100).rounded()))%"
     }
 
-    private func swatch(_ color: NSColor) -> NSImage {
-        NSImage(size: NSSize(width: 12, height: 12), flipped: false) { rect in
-            color.setFill()
-            NSBezierPath(ovalIn: rect.insetBy(dx: 0.5, dy: 0.5)).fill()
-            return true
-        }
+    // A colored dot before the name; recent macOS versions don't draw menu item images.
+    private func swatchTitle(_ name: String, _ color: NSColor) -> NSAttributedString {
+        let font = NSFont.menuFont(ofSize: 0)
+        let title = NSMutableAttributedString(string: "● ", attributes: [.font: font, .foregroundColor: color])
+        title.append(NSAttributedString(string: name, attributes: [.font: font]))
+        return title
     }
 
     private static func sameColor(_ a: NSColor, _ b: NSColor) -> Bool {
